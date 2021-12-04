@@ -1,3 +1,4 @@
-| test.c:23:14:23:14 | e | The variable $@ may not be initialized here, but has a cleanup handler. | test.c:20:26:20:26 | e | e |
-| test.c:27:10:27:10 | a | The variable $@ may not be initialized here, but has a cleanup handler. | test.c:16:45:16:45 | a | a |
-| test.c:29:10:29:10 | c | The variable $@ may not be initialized here, but has a cleanup handler. | test.c:18:25:18:25 | c | c |
+| test.c:28:14:28:41 | macro_attribute_and_fun_call | The variable $@ may not be initialized here, but has a cleanup handler. | test.c:24:26:24:53 | macro_attribute_and_fun_call | macro_attribute_and_fun_call |
+| test.c:32:10:32:23 | full_attribute | The variable $@ may not be initialized here, but has a cleanup handler. | test.c:20:45:20:58 | full_attribute | full_attribute |
+| test.c:34:10:34:26 | macro_attribute_1 | The variable $@ may not be initialized here, but has a cleanup handler. | test.c:22:25:22:41 | macro_attribute_1 | macro_attribute_1 |
+| test.c:37:20:37:32 | not_a_pointer | The variable $@ may not be initialized here, but has a cleanup handler. | test.c:25:32:25:44 | not_a_pointer | not_a_pointer |

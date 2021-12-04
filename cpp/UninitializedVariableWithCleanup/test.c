@@ -12,23 +12,29 @@ static inline void foo(char **p) {
         *p = free(*p);
 }
 
+static inline void erase_char(char *p) {
+    *p = '\0';
+}
+
 int main(void) {
-    __attribute__((__cleanup__(foo))) char *a;
-    char *b;
-    _cleanup_foo_ char *c;
-    char **d;
-    _cleanup_free_ char *e;
+    __attribute__((__cleanup__(foo))) char *full_attribute;
+    char *simple_pointer;
+    _cleanup_foo_ char *macro_attribute_1;
+    char **double_pointer;
+    _cleanup_free_ char *macro_attribute_and_fun_call;
+    _cleanup_(erase_char) char not_a_pointer;
     int r;
 
-    r = fun(&e);
+    r = fun(&macro_attribute_and_fun_call);
     if (r < 0)
         return 1;
 
-    puts(a);
-    puts(b);
-    puts(c);
-    puts(*d);
-    puts(e);
+    puts(full_attribute);
+    puts(simple_pointer);
+    puts(macro_attribute_1);
+    puts(*double_pointer);
+    puts(macro_attribute_and_fun_call);
+    printf("%c\n", not_a_pointer);
 
     return 0;
 }
