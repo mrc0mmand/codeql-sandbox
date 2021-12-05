@@ -17,23 +17,32 @@ static inline void erase_char(char *p) {
 }
 
 int main(void) {
+    /* BAD: has a cleanup attribute, is a pointer, missing initialization */
     __attribute__((__cleanup__(foo))) char *full_attribute;
-    char *simple_pointer;
+    /* BAD: has a cleanup attribute (macrofied), is a pointer, missing initialization */
     _cleanup_foo_ char *macro_attribute_1;
-    char **double_pointer;
+    /* BAD: has a cleanup attribute (macrofied), is a pointer, missing initialization */
     _cleanup_free_ char *macro_attribute_and_fun_call;
+    /* GOOD: doesn't have a cleanup attribute */
+    char *simple_pointer;
+    /* GOOD: doesn't have a cleanup attribute */
+    char **double_pointer;
+    /* GOOD: has a cleanup attribute, is not a pointer */
     _cleanup_(erase_char) char not_a_pointer;
     int r;
 
+    /* We don't care if the variable is passed to a function, since the function
+     * might not initialize it */
     r = fun(&macro_attribute_and_fun_call);
     if (r < 0)
         return 1;
 
     puts(full_attribute);
-    puts(simple_pointer);
     puts(macro_attribute_1);
-    puts(*double_pointer);
     puts(macro_attribute_and_fun_call);
+
+    puts(simple_pointer);
+    puts(*double_pointer);
     printf("%c\n", not_a_pointer);
 
     return 0;
