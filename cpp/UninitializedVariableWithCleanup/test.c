@@ -18,19 +18,19 @@ static inline void erase_char(char *p) {
 }
 
 int main(void) {
-    /* BAD: has a cleanup attribute, is a pointer, missing initialization */
+    /* BAD: has a cleanup attribute, missing initialization */
     __attribute__((__cleanup__(foo))) char *b_full_attribute;
-    /* BAD: has a cleanup attribute (macrofied), is a pointer, missing initialization */
+    /* BAD: has a cleanup attribute (macrofied), missing initialization */
     _cleanup_foo_ char *b_macro_attribute_1;
-    /* BAD: has a cleanup attribute (macrofied), is a pointer, missing initialization */
+    /* BAD: has a cleanup attribute (macrofied), missing initialization */
     _cleanup_free_ char *b_macro_attribute_and_fun_call;
     /* GOOD: doesn't have a cleanup attribute */
     char *g_simple_pointer;
     /* GOOD: doesn't have a cleanup attribute */
     char **g_double_pointer;
-    /* GOOD: has a cleanup attribute, is not a pointer */
+    /* GOOD: has a cleanup attribute which is on a deny list */
     _cleanup_(erase_char) char g_not_a_pointer;
-    /* GOOD: has a cleanup attribute, is a pointer, is initialized */
+    /* GOOD: has a cleanup attribute, is initialized */
     _cleanup_free_ char *g_macro_attribute_initialized = NULL;
     int r;
 
