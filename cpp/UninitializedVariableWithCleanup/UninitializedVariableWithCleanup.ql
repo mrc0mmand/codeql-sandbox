@@ -59,7 +59,7 @@ class UninitialisedLocalReachability extends StackVariableReachability {
     // only report the _first_ possibly uninitialized use
     useOfVar(v, node) or
     (
-      /* If there's an return statement somewhere between the variable declaration
+      /* If there's a return statement somewhere between the variable declaration
        * and a possible definition, don't accept is as a valid initialization.
        *
        * E.g.:
@@ -80,27 +80,6 @@ class UninitialisedLocalReachability extends StackVariableReachability {
   }
 }
 
-pragma[noinline]
-predicate containsInlineAssembly(Function f) { exists(AsmStmt s | s.getEnclosingFunction() = f) }
-
-/**
- * Auxiliary predicate: List common exceptions or false positives
- * for this check to exclude them.
- */
-VariableAccess commonException() {
-  // If the uninitialized use we've found is in a macro expansion, it's
-  // typically something like va_start(), and we don't want to complain.
-  result.getParent().isInMacroExpansion()
-  or
-  result.getParent() instanceof BuiltInOperation
-  or
-  // Finally, exclude functions that contain assembly blocks. It's
-  // anyone's guess what happens in those.
-  containsInlineAssembly(result.getEnclosingFunction())
-}
-
 from UninitialisedLocalReachability r, LocalVariable v, VariableAccess va
-where
-  r.reaches(_, v, va) and
-  not va = commonException()
+where r.reaches(_, v, va)
 select va, "The variable $@ may not be initialized here, but has a cleanup handler.", v, v.getName()
