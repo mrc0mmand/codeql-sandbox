@@ -75,7 +75,11 @@ class UninitialisedLocalReachability extends StackVariableReachability {
        * don't know if the return statement might ever evaluate to true).
        */
       definitionBarrier(v, node) and
-      not exists(ReturnStmt rs | v.getFunction() = rs.getEnclosingFunction() | rs.getLocation().isBefore(node.getLocation()))
+      not exists(ReturnStmt rs |
+                 /* The attribute check is "just" a complexity optimization */
+                 v.getFunction() = rs.getEnclosingFunction() and v.getAnAttribute().hasName("cleanup") |
+                 rs.getLocation().isBefore(node.getLocation())
+      )
     )
   }
 }
