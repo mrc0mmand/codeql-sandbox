@@ -27,7 +27,8 @@ static inline void free_somedata(struct SomeData *p) {
         p->p = free(p->p);
 }
 
-int main(void) {
+int main(void)
+{
     /* BAD: has a cleanup attribute, missing initialization */
     __attribute__((__cleanup__(foo))) char *b_full_attribute;
     /* BAD: has a cleanup attribute (macrofied), missing initialization */
@@ -65,5 +66,22 @@ int main(void) {
     puts(g_macro_attribute_initialized);
     puts(g_stack_struct.p);
 
+    malloc_tests();
     return 0;
+}
+
+void malloc_tests(void)
+{
+    _cleanup_free_ char *g_assigned;
+    _cleanup_free_ char *b_unassigned;
+
+    g_assigned = malloc(sizeof *g_assigned);
+
+    if (fun2() < 0)
+        return;
+
+    b_unassigned = malloc(sizeof *b_unassigned);
+
+    puts(g_assigned);
+    puts(b_unassigned);
 }

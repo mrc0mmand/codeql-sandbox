@@ -58,7 +58,27 @@ class UninitialisedLocalReachability extends StackVariableReachability {
   override predicate isBarrier(ControlFlowNode node, StackVariable v) {
     // only report the _first_ possibly uninitialized use
     useOfVar(v, node) or
-    definitionBarrier(v, node)
+    (
+      /* If there's an return statement somewhere between the variable declaration
+       * and a possible definition, don't accept is as a valid initialization.
+       *
+       * E.g.:
+       * _cleanup_free_ char *x;
+       * ...
+       * if (...)
+       *    return;
+       * ...
+       * x = malloc(...);
+       *
+       * is not a valid initialization, since we might return from the function
+       * _before_ the actual iniitialization (emphasis on _might_, since we
+       * don't know if the return statement might ever evaluate to true).
+       */
+      definitionBarrier(v, node) and
+      not exists(ReturnStmt rs, Location rl, Location nl, Location vl |
+                 rl = rs.getLocation() and nl = node.getLocation() and vl = v.getLocation() |
+                 vl.isBefore(rl) and rl.isBefore(nl))
+    )
   }
 }
 
