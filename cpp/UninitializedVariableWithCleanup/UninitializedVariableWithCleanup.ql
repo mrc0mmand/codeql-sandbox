@@ -33,7 +33,7 @@ DeclStmt declWithNoInit(LocalVariable v) {
   /* The variable has __attribute__((__cleanup__(...))) set */
   v.getAnAttribute().hasName("cleanup") and
   /* Check if the cleanup function is not on a deny list */
-  not exists(Attribute a | a = v.getAnAttribute() and a.getName() = "cleanup" | cleanupFunctionDenyList(a.getAnArgument().getValueText()))
+  not cleanupFunctionDenyList(v.getAnAttribute().getAnArgument().getValueText())
 }
 
 class UninitialisedLocalReachability extends StackVariableReachability {
@@ -75,9 +75,7 @@ class UninitialisedLocalReachability extends StackVariableReachability {
        * don't know if the return statement might ever evaluate to true).
        */
       definitionBarrier(v, node) and
-      not exists(ReturnStmt rs, Location rl, Location nl, Location vl |
-                 rl = rs.getLocation() and nl = node.getLocation() and vl = v.getLocation() |
-                 vl.isBefore(rl) and rl.isBefore(nl))
+      not exists(ReturnStmt rs | v.getFunction() = rs.getEnclosingFunction() | rs.getLocation().isBefore(node.getLocation()))
     )
   }
 }
