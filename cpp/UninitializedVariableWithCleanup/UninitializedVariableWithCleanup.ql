@@ -16,21 +16,6 @@
 import cpp
 import semmle.code.cpp.controlflow.StackVariableReachability
 
-/**
- * Auxiliary predicate: Types that don't require initialization
- * before they are used, since they're stack-allocated.
- */
-predicate allocatedType(Type t) {
-  /* Arrays: "int foo[1]; foo[0] = 42;" is ok. */
-  t instanceof ArrayType
-  or
-  /* Typedefs to other allocated types are fine. */
-  allocatedType(t.(TypedefType).getUnderlyingType())
-  or
-  /* Type specifiers don't affect whether or not a type is allocated. */
-  allocatedType(t.getUnspecifiedType())
-}
-
 /** Auxiliary predicate: List cleanup functions we want to explicitly ignore
   * since they don't do anything illegal even when the variable is uninitialized
   */
@@ -44,13 +29,11 @@ predicate cleanupFunctionDenyList(string fun) {
  */
 DeclStmt declWithNoInit(LocalVariable v) {
   result.getADeclaration() = v and
-  not exists(v.getInitializer()) and
+  not v.hasInitializer() and
   /* The variable has __attribute__((__cleanup__(...))) set */
   v.getAnAttribute().hasName("cleanup") and
   /* Check if the cleanup function is not on a deny list */
-  not exists(Attribute a | a = v.getAnAttribute() and a.getName() = "cleanup" | cleanupFunctionDenyList(a.getAnArgument().getValueText())) and
-  /* The type of the variable is not stack-allocated. */
-  exists(Type t | t = v.getType() | not allocatedType(t))
+  not exists(Attribute a | a = v.getAnAttribute() and a.getName() = "cleanup" | cleanupFunctionDenyList(a.getAnArgument().getValueText()))
 }
 
 class UninitialisedLocalReachability extends StackVariableReachability {
