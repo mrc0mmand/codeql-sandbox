@@ -72,7 +72,9 @@ int main(void)
 
 void malloc_tests(void)
 {
+    /* GOOD: the variable is initialized _before_ any return statement */
     _cleanup_free_ char *g_assigned;
+    /* BAD: the variable is initialized _after_ a potentially reachable return statement */
     _cleanup_free_ char *b_unassigned;
 
     g_assigned = malloc(sizeof *g_assigned);
